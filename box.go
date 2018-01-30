@@ -6,7 +6,14 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/atotto/clipboard"
 )
+
+func init() {
+	// Suppress standard logging information
+	log.SetFlags(0)
+}
 
 func main() {
 	if len(os.Args) == 1 {
@@ -14,18 +21,28 @@ func main() {
 	}
 
 	input := strings.Join(os.Args[1:], " ")
-	tb := strings.Repeat("*", len(input)+3)
+	box := generate(input)
+
+	fmt.Println(box)
+
+	if err := clipboard.WriteAll(box); err != nil {
+		log.Fatalf("error copying to clipboard: %v", err)
+	}
+}
+
+func generate(input string) string {
+	topBottom := strings.Repeat("*", len(input)+3)
 
 	buf := new(bytes.Buffer)
 	buf.WriteString("/")
-	buf.WriteString(tb)
+	buf.WriteString(topBottom)
 	buf.WriteString("\n")
 	buf.WriteString("* ")
 	buf.WriteString(input)
 	buf.WriteString(" *")
 	buf.WriteString("\n")
-	buf.WriteString(tb)
+	buf.WriteString(topBottom)
 	buf.WriteString("/")
 
-	fmt.Println(buf.String())
+	return buf.String()
 }
